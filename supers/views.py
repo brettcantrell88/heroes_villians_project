@@ -30,5 +30,6 @@ def supers_detail(request, pk):
         serializer.save()
         return Response(serializer.data)
     elif request.method == 'DELETE':
+        serializer = SuperSerializer(super)
         super.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
