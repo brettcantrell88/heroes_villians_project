@@ -13,11 +13,23 @@ def supers_list(request):
         supers = Super.objects.all()
         super_param = request.query_params.get('super_type')
         serializer = SuperSerializer(supers, many=True)
-        # Run if there is a type param
         if super_param:
             supers = supers.filter(super_type__type=super_param)
             serializer = SuperSerializer(supers, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            heroes = supers.filter(super_type__type = "Hero")
+            villains = supers.filter(super_type__type = "Villain")
+            hero_serializer = SuperSerializer(heroes, many=True)
+            villain_serializer = SuperSerializer(villains, many=True)
+            custom_dictionary_response = {"Heroes":hero_serializer.data,"Villains":villain_serializer.data}
+            return Response(custom_dictionary_response, status=status.HTTP_200_OK)
+
+    elif request.method == 'POST':
+        serializer = SuperSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['Get', 'PUT', "DELETE"])
 def supers_detail(request, pk): 
@@ -37,40 +49,16 @@ def supers_detail(request, pk):
     
 
 
-@api_view(['GET'])
-def heroes_and_villains(request):
-    supers = Super.objects.all()
-    super_types = Super.objects.all()
-    supers_serializer = SuperSerializer(supers, many=True)
-    super_types_serializer = SuperSerializer(super_types, many=True)
+# @api_view(['GET'])
+# def heroes_and_villains(request):
+#     supers = Super.objects.all()
+#     super_types = Super.objects.all()
+#     supers_serializer = SuperSerializer(supers, many=True)
+#     super_types_serializer = SuperSerializer(super_types, many=True)
 
-    custom_response_dict = {
-        'supers': supers_serializer.data,
-        'super_types': super_types_serializer.data
-    }
-    return Response(custom_response_dict)
-
-
-        #return Response(custom_dictionary, status=status.HTTP_418_IM_A_TEAPOT)
-
-    #elif request.method == 'POST':
-       # serializer = SuperSerializer(data=request.data)
-       # serializer.is_valid(raise_exception=True)
-       # serializer.save()
-       # return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    # if sort_param:
-    #     supers = supers.order_by(sort_param)
-    # serializer = SuperSerializer(supers, many=True)
-   
-        #Run if no type param
-        
-        # Grabs Heroes
-        #heroes = supers.filter(super_type__type = 'Hero')
-        #heroes_serialized = SuperSerializer(heroes,many=True)
-        #custom_dictionary = {
-         #   "Hero": heroes_serialized.data,
-         #   "Instuctor": "Jake is awesome"
-        #} 
-
-    
+#     custom_response_dict = {
+#         heroes = supers.filter(super_type__type = 'Hero')
+#         heroes_serialized = SuperSerializer(heroes,many=True)
+#         'supers': supers_serializer.data,
+#         'super_types': super_types_serializer.data
+#         }
